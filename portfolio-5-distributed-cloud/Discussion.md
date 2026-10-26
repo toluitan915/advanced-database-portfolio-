@@ -1,0 +1,15 @@
+# Portfolio 5 — Distributed and cloud exercise
+
+## Proposed deployment
+A small Lumen centre can begin with one SQL Server database. If a cloud deployment is needed, one Azure SQL Database primary can serve enrolments and payments, with a readable geo-secondary in another region for disaster recovery and selected reports. This is a proposal, not an already provisioned cloud service. No cloud credentials, billed resources or external database changes are included.
+
+Replication copies the same data to another database. Azure SQL active geo-replication is asynchronous: the primary can commit before the secondary receives a change. A report on the secondary can therefore lag behind the primary. Read a newly created enrolment and check its course capacity on the primary. A forced failover can lose changes that have not reached the replica. A replica is also not a replacement for point-in-time recovery, since mistakes can be replicated. Choose recovery objectives, backups, access controls and failover procedures before deployment.
+
+Availability means users can continue to access the service when components fail. Consistency concerns whether reads reflect the relevant writes and business rules. During a disruption, admitting students independently on disconnected copies would risk exceeding capacity. For this model, pause enrolment writes when the authoritative primary cannot be reached; do not accept conflicting writes on both sides. A failover group can be considered when a stable connection endpoint and grouped failover are needed.
+
+## Sharding and the local exercise
+Sharding divides different rows between databases rather than copying every row. BranchCode could route branch-owned course requests to Ibadan or Lagos. The local T-SQL exercise stores those request rows in separate tables and combines them with UNION ALL. Each branch may have RequestID 1, so BranchCode + RequestID is the business identifier. The expected output contains two requests.
+
+Both tables still reside in one database on one server. This illustrates horizontal separation only; it does not demonstrate network routing, physical sharding, replication, regional failover or independent availability. Actual shards need application routing, cross-shard reporting and a plan for shared students and course ownership. Local foreign keys do not automatically become cross-database constraints. A national course must have one authoritative capacity owner to prevent separate branches allocating the same last place.
+
+The assessment allows a distributed/cloud discussion or setup. This section supplies a reasoned proposal plus a clearly labelled local demonstration. It does not claim a live cloud deployment. If implemented later, capture resource configuration, replica status, measured lag and an authorised failover test, with secrets removed. The main scripts use USE and local CREATE DATABASE for SQL Server; Azure SQL Database requires connecting directly to the target database and adapting those setup statements.
