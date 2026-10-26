@@ -1,0 +1,9 @@
+USE LumenPortfolio;
+GO
+CREATE TABLE dbo.Students (
+    StudentID INT IDENTITY(1,1) CONSTRAINT PK_Students PRIMARY KEY,
+    FullName NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NOT NULL CONSTRAINT UQ_Students_Email UNIQUE,
+    City NVARCHAR(60) NOT NULL
+);
+GO
